@@ -1,0 +1,175 @@
+<form [formGroup]="form" (ngSubmit)="integrate()">
+  <div class="flex flex-col items-center">
+    <div class="flex flex-col gap-16 items-center">
+      <div class="grid gap-16 w-full">
+        <div
+          class="flex flex-col p-24 rounded-md bg-gray-100 shadow-md row-1 col-1"
+        >
+          <h1 class="text-lg font-bold mb-8">Function</h1>
+          <app-plot
+            class="mb-16 self-center"
+            [function]="function"
+            [lowerLimit]="lowerLimit"
+            [upperLimit]="upperLimit"
+          />
+          <div class="flex flex-row items-center">
+            <label for="function" class="font-medium">
+              <math>
+                <mrow>
+                  <mi>f</mi>
+                  <mo>(</mo>
+                  <mi>x</mi>
+                  <mo>)</mo>
+                </mrow>
+                <mo>=</mo>
+              </math>
+            </label>
+            <input
+              id="function"
+              class="h-fit"
+              type="text"
+              formControlName="function"
+              autoSizeInput
+              [minWidth]="128"
+              [extraWidth]="10"
+            />
+          </div>
+          @if (
+            form.get("function")?.invalid &&
+            (form.get("function")?.touched || form.get("function")?.dirty)
+          ) {
+            <div class="w-full flex justify-center">
+              <div
+                class="text-sm text-red-600 font-medium text-center mt-8 max-w-2xs"
+              >
+                Please enter a valid function of x.
+              </div>
+            </div>
+          }
+        </div>
+        <div class="p-24 rounded-md bg-gray-100 shadow-md row-2 col-1">
+          <div
+            class="grid grid-cols-[max-content_max-content] gap-8 items-center"
+          >
+            <label for="method" class="font-medium">Method:</label>
+            <select id="method" formControlName="method">
+              @for (method of methods; track method) {
+                <option [value]="method.value">{{ method.label }}</option>
+              }
+            </select>
+          </div>
+          <div
+            class="mt-8 grid grid-cols-[max-content_max-content] gap-8 items-center"
+          >
+            <label for="lower-limit" class="font-medium">Lower Limit:</label>
+            <input
+              id="lower-limit"
+              class="min-w-full h-fit"
+              type="text"
+              formControlName="lowerLimit"
+              autoSizeInput
+              [minWidth]="64"
+              [extraWidth]="10"
+            />
+            <label for="upper-limit" class="font-medium">Upper Limit:</label>
+            <input
+              id="upper-limit"
+              class="min-w-full h-fit"
+              type="text"
+              formControlName="upperLimit"
+              autoSizeInput
+              [minWidth]="64"
+              [extraWidth]="10"
+            />
+            <label for="precision" class="font-medium">Precision:</label>
+            <input
+              id="precision"
+              class="h-fit"
+              type="text"
+              placeholder="6"
+              formControlName="precision"
+              autoSizeInput
+              [minWidth]="32"
+              [extraWidth]="10"
+            />
+          </div>
+          @if (
+            form.get("lowerLimit")?.invalid &&
+            (form.get("lowerLimit")?.dirty || form.get("lowerLimit")?.touched)
+          ) {
+            <div class="w-full flex justify-center">
+              <div
+                class="text-sm text-red-600 font-medium text-center mt-8 max-w-3xs"
+              >
+                Please enter a valid lower limit.
+              </div>
+            </div>
+          }
+          @if (
+            form.get("upperLimit")?.invalid &&
+            (form.get("upperLimit")?.dirty || form.get("upperLimit")?.touched)
+          ) {
+            <div class="w-full flex justify-center">
+              <div
+                class="text-sm text-red-600 font-medium text-center mt-8 max-w-3xs"
+              >
+                Please enter a valid upper limit.
+              </div>
+            </div>
+          }
+          @if (
+            form.get("precision")?.invalid &&
+            (form.get("precision")?.touched || form.get("precision")?.dirty)
+          ) {
+            <div class="w-full flex justify-center">
+              <div
+                class="text-sm text-red-600 font-medium text-center mt-8 max-w-2xs"
+              >
+                Please enter a valid precision.
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      <button
+        type="submit"
+        class="w-fit px-16 py-6 border-none rounded-lg outline-none bg-blue-500 text-white shadow-sm cursor-pointer transition duration-200 hover:bg-blue-400 hover:-translate-y-2 hover:shadow-md active:bg-blue-600 active:translate-y-0 active:shadow-sm"
+      >
+        Integrate
+      </button>
+      @if (response()) {
+        <div
+          #result
+          class="flex flex-col gap-8 w-full p-24 rounded-md bg-gray-100 shadow-md row-2 col-1"
+        >
+          <h1 class="text-lg font-bold">Result</h1>
+          @if (response()!.message) {
+            <p>{{ response()!.message }}</p>
+          }
+          @if (response()!.value) {
+            <div class="flex flex-row items-center gap-8">
+              <span class="font-medium">Root:</span>
+              <span class="select-text">
+                {{ response()!.value }}
+              </span>
+            </div>
+            @if (response()!.absoluteError) {
+              <div class="flex flex-row items-center gap-8">
+                <span class="font-medium">Absolute Relative Error:</span>
+                <span class="select-text">
+                  {{ response()!.absoluteError }}
+                </span>
+              </div>
+            }
+          }
+          @if (response()!.executionTime) {
+            <div class="flex flex-row items-center gap-8">
+              <span class="font-medium">Execution Time:</span>
+              <span class="select-text">{{ response()!.executionTime }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</form>

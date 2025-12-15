@@ -1,0 +1,8 @@
+<div class="size-fit p-8 rounded-md overflow-hidden shadow-md bg-white">
+  <plotly-plot
+    [data]="data"
+    [layout]="layout"
+    [config]="config"
+    (relayout)="onRelayout($any($event))"
+  ></plotly-plot>
+</div>
