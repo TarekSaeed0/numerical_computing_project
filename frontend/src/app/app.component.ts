@@ -19,6 +19,7 @@ export class AppComponent {
   tabs = [
     { label: "Equations Solver", path: "/equations-solver" },
     { label: "Root Finder", path: "/root-finder" },
+    { label: "Integration", path: "/integration" },
   ];
 
   activeTabIndex = 0;

@@ -41,8 +41,14 @@ export class IntegrationComponent {
       this.methods[0].value as (typeof this.methods)[number]["value"],
       Validators.required,
     ],
-    lowerLimit: ["", [Validators.pattern(/^[-+]?\d+(\.\d+)?$/)]],
-    upperLimit: ["", [Validators.pattern(/^[-+]?\d+(\.\d+)?$/)]],
+    lowerLimit: [
+      "",
+      [Validators.required, Validators.pattern(/^[-+]?\d+(\.\d+)?$/)],
+    ],
+    upperLimit: [
+      "",
+      [Validators.required, Validators.pattern(/^[-+]?\d+(\.\d+)?$/)],
+    ],
     numberOfSubintervals: ["", [Validators.pattern(/^[1-9]\d*$/)]],
     precision: ["", [Validators.pattern(/^[1-9]\d*$/)]],
   });
@@ -50,6 +56,7 @@ export class IntegrationComponent {
   function: string | null = null;
   lowerLimit: number | null = null;
   upperLimit: number | null = null;
+  numberOfSubintervals: number | null = null;
 
   response = signal<IntegrateResponse | null>(null);
 
@@ -73,6 +80,14 @@ export class IntegrationComponent {
         this.upperLimit = parseFloat(upperLimit!);
       }
     });
+
+    this.form.get("numberOfSubintervals")?.valueChanges.subscribe((n) => {
+      if (this.form.get("numberOfSubintervals")?.valid) {
+        this.numberOfSubintervals = isNaN(parseInt(n!, 10))
+          ? 100
+          : parseInt(n!, 10);
+      }
+    });
   }
 
   integrate() {
@@ -90,7 +105,9 @@ export class IntegrationComponent {
       method: value.method!,
       lowerLimit: value.lowerLimit!,
       upperLimit: value.upperLimit!,
-      numberOfSubintervals: parseInt(value.numberOfSubintervals!, 10),
+      numberOfSubintervals: isNaN(parseInt(value.numberOfSubintervals!, 10))
+        ? undefined
+        : parseInt(value.numberOfSubintervals!, 10),
       precision: isNaN(parseInt(value.precision!, 10))
         ? undefined
         : parseInt(value.precision!, 10),

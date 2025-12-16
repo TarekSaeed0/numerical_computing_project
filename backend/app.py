@@ -3,6 +3,7 @@ from flask_cors import CORS
 import sympy
 from sympy import real_root
 from exceptions import ValidationError
+from integration.integrator_factory import IntegratorFactory
 from validator import LinearSystemValidator
 from equations_solver.solver_factory import SolverFactory
 from root_finder.finder_factory import FinderFactory
@@ -130,6 +131,75 @@ def find_root():
         )
 
         result = finder.find()
+        print("=" * 50 + "\n")
+        return jsonify(result.to_dict()), 200
+
+    except ValidationError as e:
+        print(f"\n Validation Error: {str(e)}\n")
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        print(f"\n Exception occurred: {str(e)}")
+        import traceback
+
+        print("Full traceback:")
+        traceback.print_exc()
+        print("\n")
+        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+
+
+@app.route("/api/integrate", methods=["POST"])
+def integrate():
+    try:
+        data = request.get_json()
+
+        # Debug logging
+        print("\n" + "=" * 50)
+        print("Received request:")
+        print(f"Data: {data}")
+
+        # Extract data
+        function = data.get("function")
+        method = data.get("method")
+        lower_limit = data.get("lower_limit")
+        upper_limit = data.get("upper_limit")
+        number_of_subintervals = data.get("number_of_subintervals", 100)
+        precision = data.get("precision", 6)
+
+        print(f"method: {method}")
+        print(f"precision: {precision}")
+
+        # set precision for Decimal operations
+        getcontext().prec = precision
+
+        # Validate required fields
+        if not method:
+            return jsonify({"error": "Missing required field: method"}), 400
+
+        if not all([function]):
+            return jsonify(
+                {"error": "Missing required fields: function for integration methods"}
+            ), 400
+
+        if not all([lower_limit, upper_limit]):
+            return jsonify(
+                {
+                    "error": "Missing required fields: lower_limit, upper_limit for integration methods"
+                }
+            ), 400
+
+        precision_value = LinearSystemValidator.validate_precision(precision)
+
+        # Create and run integrator
+        integrator = IntegratorFactory.create_integrator(
+            function=function,
+            method=method,
+            lower_limit=Decimal(lower_limit),
+            upper_limit=Decimal(upper_limit),
+            number_of_subintervals=number_of_subintervals,
+            precision=precision_value,
+        )
+
+        result = integrator.integrate()
         print("=" * 50 + "\n")
         return jsonify(result.to_dict()), 200
 
@@ -446,4 +516,4 @@ if __name__ == "__main__":
 
     sympy.cbrt = lambda x: real_root(x, 3)
 
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=True)

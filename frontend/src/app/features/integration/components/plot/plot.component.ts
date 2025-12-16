@@ -15,6 +15,7 @@ export class PlotComponent implements OnChanges {
   function = input<string | null>(null);
   lowerLimit = input<number | null>(null);
   upperLimit = input<number | null>(null);
+  numberOfSubintervals = input<number | null>(null);
   compiledFunction: EvalFunction | null = null;
 
   minX = -10;
@@ -31,7 +32,7 @@ export class PlotComponent implements OnChanges {
     yaxis: { range: [this.minX, this.maxX], exponentformat: "power" },
     width: 400,
     height: 350,
-    colorway: ["#2b7fff", "#fb2c36", "#00c951", "#efb100"],
+    colorway: ["#2b7fff"],
     showlegend: false,
   };
 
@@ -45,12 +46,21 @@ export class PlotComponent implements OnChanges {
       this.compileFunction();
       this.generateData();
     }
+
     if (
       (changes["lowerLimit"] || changes["upperLimit"]) &&
       this.lowerLimit() !== null &&
+      this.upperLimit() !== null &&
+      this.numberOfSubintervals() !== null
+    ) {
+      this.generateData();
+    }
+
+    if (
+      changes["numberOfSubintervals"] &&
+      this.lowerLimit() !== null &&
       this.upperLimit() !== null
     ) {
-      console.log("Test1");
       this.generateData();
     }
   }
@@ -79,7 +89,7 @@ export class PlotComponent implements OnChanges {
       },
     ];
 
-    if (this.lowerLimit()!== null && this.upperLimit()!== null) {
+    if (this.lowerLimit() !== null && this.upperLimit() !== null) {
       this.data = [
         ...this.data,
         {
@@ -97,6 +107,26 @@ export class PlotComponent implements OnChanges {
           line: { color: "transparent" },
         },
       ];
+      if (this.numberOfSubintervals() !== null) {
+        const h =
+          (this.upperLimit()! - this.lowerLimit()!) /
+          this.numberOfSubintervals()!;
+        const x = Array.from(
+          { length: this.numberOfSubintervals()! + 1 },
+          (_, i) => this.lowerLimit()! + i * h,
+        );
+        const y = x.map((x) => this.compiledFunction?.evaluate({ x }));
+        this.data = [
+          ...this.data,
+          {
+            x,
+            y,
+            type: "scatter",
+            mode: "markers",
+            name: "Subinterval Points",
+          },
+        ];
+      }
     }
   }
 

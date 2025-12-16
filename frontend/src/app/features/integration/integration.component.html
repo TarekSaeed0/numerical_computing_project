@@ -11,6 +11,7 @@
             [function]="function"
             [lowerLimit]="lowerLimit"
             [upperLimit]="upperLimit"
+            [numberOfSubintervals]="numberOfSubintervals"
           />
           <div class="flex flex-row items-center">
             <label for="function" class="font-medium">
@@ -77,6 +78,19 @@
               class="min-w-full h-fit"
               type="text"
               formControlName="upperLimit"
+              autoSizeInput
+              [minWidth]="64"
+              [extraWidth]="10"
+            />
+            <label for="number-of-subintervals" class="font-medium"
+              >Number of Subintervals:</label
+            >
+            <input
+              id="number-of-subintervals"
+              class="min-w-full h-fit"
+              type="text"
+              placeholder="100"
+              formControlName="numberOfSubintervals"
               autoSizeInput
               [minWidth]="64"
               [extraWidth]="10"
@@ -148,14 +162,14 @@
           }
           @if (response()!.value) {
             <div class="flex flex-row items-center gap-8">
-              <span class="font-medium">Root:</span>
+              <span class="font-medium">Value:</span>
               <span class="select-text">
                 {{ response()!.value }}
               </span>
             </div>
             @if (response()!.absoluteError) {
               <div class="flex flex-row items-center gap-8">
-                <span class="font-medium">Absolute Relative Error:</span>
+                <span class="font-medium">Absolute Error:</span>
                 <span class="select-text">
                   {{ response()!.absoluteError }}
                 </span>

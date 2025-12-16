@@ -24,6 +24,7 @@ import { TwoGuessesParametersComponent } from "./components/parameters/two-guess
 import { OneGuessWithMultiplicityParametersComponent } from "./components/parameters/one-guess-with-multiplicity-parameters/one-guess-with-multiplicity-parameters.component";
 import { FindRootRequest } from "./models/find-root-request";
 import { RootFinderService } from "./services/root-finder.service";
+import { functionValidator } from "../../shared/validators/function-validator";
 
 @Component({
   selector: "app-root-finder",
@@ -44,106 +45,6 @@ export class RootFinderComponent {
   private formBuilder = inject(FormBuilder);
   private changeDetectorRef = inject(ChangeDetectorRef);
 
-  readonly allowedConstants = new Set(["e", "pi"]);
-
-  readonly allowedFunctions = new Set([
-    "sqrt",
-    "cbrt",
-    "sin",
-    "cos",
-    "tan",
-    "csc",
-    "sec",
-    "cot",
-    "sinh",
-    "cosh",
-    "tanh",
-    "csch",
-    "sech",
-    "coth",
-    "asin",
-    "acos",
-    "atan",
-    "acsc",
-    "asec",
-    "acot",
-    "asinh",
-    "acosh",
-    "atanh",
-    "acsch",
-    "asech",
-    "acoth",
-    "log",
-    "exp",
-  ]);
-
-  readonly allowedOperators = new Set(["+", "-", "*", "/", "^"]);
-
-  readonly functionValidator = (
-    control: AbstractControl,
-  ): ValidationErrors | null => {
-    if (!control.value) {
-      return null;
-    }
-
-    try {
-      const node = parse(control.value);
-
-      if (
-        node.filter(
-          (n) =>
-            ![
-              "ConstantNode",
-              "FunctionNode",
-              "OperatorNode",
-              "ParenthesisNode",
-              "SymbolNode",
-            ].includes(n.type),
-        ).length > 0
-      ) {
-        return { invalidFunction: true };
-      }
-
-      const operators = node
-        .filter((n) => n.type === "OperatorNode")
-        .map((n) => (n as OperatorNode).op)
-        .filter((op) => !this.allowedOperators.has(op));
-
-      if (operators.length !== 0) {
-        return { invalidFunction: true };
-      }
-
-      const functions = node.filter(
-        (n, _, p) =>
-          n.type === "SymbolNode" &&
-          this.allowedFunctions.has((n as SymbolNode).name) &&
-          !(p && p.type === "FunctionNode" && (p as FunctionNode).fn == n),
-      );
-
-      if (functions.length !== 0) {
-        return { invalidFunction: true };
-      }
-
-      const symbols = node
-        .filter((n) => n.type === "SymbolNode")
-        .map((n) => (n as SymbolNode).name)
-        .filter(
-          (n) =>
-            n !== "x" &&
-            !this.allowedConstants.has(n) &&
-            !this.allowedFunctions.has(n),
-        );
-
-      if (symbols.length !== 0) {
-        return { invalidFunction: true };
-      }
-
-      return null;
-    } catch {
-      return { invalidFunction: true };
-    }
-  };
-
   readonly methods = [
     { label: "Bisection", value: "bisection" },
     { label: "False-Position", value: "false-position" },
@@ -158,7 +59,7 @@ export class RootFinderComponent {
   );
 
   form = this.formBuilder.group({
-    function: ["", [Validators.required, this.functionValidator]],
+    function: ["", [Validators.required, functionValidator]],
     method: [
       this.methods[0].value as (typeof this.methods)[number]["value"],
       Validators.required,
