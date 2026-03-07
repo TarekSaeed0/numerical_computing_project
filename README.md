@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://git.io/typing-svg">
- <img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=900&size=40&pause=1000&color=4493F8&width=650&lines=Numerical+Computing+Project" alt="Typing SVG" />
+ <img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=900&height=60&size=40&pause=1000&color=4493F8&width=650&lines=Numerical+Computing+Project" alt="Typing SVG" />
 </a>
 
 <p align="center">A full-stack application for numerical analysis</p>
